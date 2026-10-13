@@ -2,318 +2,344 @@
    SURYA NARAYAN SAHU — PORTFOLIO JAVASCRIPT
 ========================================================= */
 
+document.addEventListener("DOMContentLoaded", () => {
 
-/* ================= PRELOADER ================= */
+    /* ================= PRELOADER ================= */
 
-window.addEventListener("load", () => {
+    const preloader = document.getElementById("preloader");
 
-    const preloader =
-        document.getElementById("preloader");
+    const hidePreloader = () => {
+        if (preloader) {
+            setTimeout(() => {
+                preloader.classList.add("hide");
+            }, 700);
+        }
+    };
 
-    setTimeout(() => {
-
-        preloader.classList.add("hide");
-
-    }, 700);
-
-});
-
-
-/* ================= MOBILE MENU ================= */
-
-const menuButton =
-    document.getElementById("menuButton");
-
-const navLinks =
-    document.querySelector(".nav-links");
-
-menuButton.addEventListener("click", () => {
-
-    navLinks.classList.toggle("open");
-
-});
+    if (document.readyState === "complete") {
+        hidePreloader();
+    } else {
+        window.addEventListener("load", hidePreloader, { once: true });
+    }
 
 
-/* Close mobile menu after clicking */
+    /* ================= MOBILE MENU ================= */
 
-document
-    .querySelectorAll(".nav-links a")
-    .forEach(link => {
+    const menuButton = document.getElementById("menuButton");
+    const navLinks = document.querySelector(".nav-links");
 
-        link.addEventListener("click", () => {
+    if (menuButton && navLinks) {
 
-            navLinks.classList.remove("open");
+        menuButton.setAttribute("aria-expanded", "false");
+
+        menuButton.addEventListener("click", () => {
+
+            const isOpen = navLinks.classList.toggle("open");
+
+            menuButton.setAttribute("aria-expanded", String(isOpen));
 
         });
 
-    });
+        navLinks.querySelectorAll("a").forEach(link => {
 
+            link.addEventListener("click", () => {
 
-/* ================= NAVBAR SCROLL ================= */
+                navLinks.classList.remove("open");
 
-const navbar =
-    document.querySelector(".navbar");
-
-window.addEventListener("scroll", () => {
-
-    if (window.scrollY > 50) {
-
-        navbar.classList.add("scrolled");
-
-    } else {
-
-        navbar.classList.remove("scrolled");
-
-    }
-
-});
-
-
-/* ================= ACTIVE NAV LINK ================= */
-
-const sections =
-    document.querySelectorAll("section[id]");
-
-const navigationLinks =
-    document.querySelectorAll(".nav-links a");
-
-window.addEventListener("scroll", () => {
-
-    let currentSection = "";
-
-    sections.forEach(section => {
-
-        const sectionTop =
-            section.offsetTop - 180;
-
-        const sectionHeight =
-            section.offsetHeight;
-
-        if (
-            window.scrollY >= sectionTop &&
-            window.scrollY <
-                sectionTop + sectionHeight
-        ) {
-
-            currentSection =
-                section.getAttribute("id");
-
-        }
-
-    });
-
-
-    navigationLinks.forEach(link => {
-
-        link.classList.remove("active");
-
-        if (
-            link.getAttribute("href") ===
-            `#${currentSection}`
-        ) {
-
-            link.classList.add("active");
-
-        }
-
-    });
-
-});
-
-
-/* ================= SCROLL REVEAL ================= */
-
-const revealElements =
-    document.querySelectorAll(".reveal");
-
-const revealObserver =
-    new IntersectionObserver(
-        (entries, observer) => {
-
-            entries.forEach(entry => {
-
-                if (entry.isIntersecting) {
-
-                    entry.target.classList.add(
-                        "visible"
-                    );
-
-                    observer.unobserve(
-                        entry.target
-                    );
-
-                }
+                menuButton.setAttribute("aria-expanded", "false");
 
             });
 
-        },
-        {
-            threshold: 0.12
+        });
+
+    }
+
+
+    /* ================= NAVBAR SCROLL ================= */
+
+    const navbar = document.querySelector(".navbar");
+
+    function updateNavbar() {
+
+        if (navbar) {
+            navbar.classList.toggle("scrolled", window.scrollY > 50);
         }
-    );
+
+    }
+
+    updateNavbar();
+
+    window.addEventListener("scroll", updateNavbar, {
+        passive: true
+    });
 
 
-revealElements.forEach(element => {
+    /* ================= ACTIVE NAV LINK ================= */
 
-    revealObserver.observe(element);
+    const sections = document.querySelectorAll("section[id]");
 
-});
+    const navigationLinks = document.querySelectorAll(".nav-links a");
+
+    function updateActiveLink() {
+
+        let currentSection = "";
+
+        sections.forEach(section => {
+
+            const sectionTop = section.offsetTop - 180;
+
+            const sectionBottom = sectionTop + section.offsetHeight;
+
+            if (
+                window.scrollY >= sectionTop &&
+                window.scrollY < sectionBottom
+            ) {
+
+                currentSection = section.id;
+
+            }
+
+        });
+
+        navigationLinks.forEach(link => {
+
+            const isActive =
+                currentSection &&
+                link.getAttribute("href") === `#${currentSection}`;
+
+            link.classList.toggle("active", Boolean(isActive));
+
+            if (isActive) {
+
+                link.setAttribute("aria-current", "location");
+
+            } else {
+
+                link.removeAttribute("aria-current");
+
+            }
+
+        });
+
+    }
+
+    updateActiveLink();
+
+    window.addEventListener("scroll", updateActiveLink, {
+        passive: true
+    });
 
 
-/* ================= SCROLL TOP ================= */
+    /* ================= SCROLL REVEAL ================= */
 
-const scrollTopButton =
-    document.getElementById("scrollTop");
+    const revealElements = document.querySelectorAll(".reveal");
 
-window.addEventListener("scroll", () => {
+    if ("IntersectionObserver" in window) {
 
-    if (window.scrollY > 500) {
+        const revealObserver = new IntersectionObserver(
+            (entries, observer) => {
 
-        scrollTopButton.classList.add("show");
+                entries.forEach(entry => {
+
+                    if (entry.isIntersecting) {
+
+                        entry.target.classList.add("visible");
+
+                        observer.unobserve(entry.target);
+
+                    }
+
+                });
+
+            },
+            {
+                threshold: 0.12
+            }
+        );
+
+        revealElements.forEach(element => {
+
+            revealObserver.observe(element);
+
+        });
 
     } else {
 
-        scrollTopButton.classList.remove("show");
+        revealElements.forEach(element => {
+
+            element.classList.add("visible");
+
+        });
 
     }
 
-});
 
+    /* ================= SCROLL TO TOP ================= */
 
-scrollTopButton.addEventListener("click", () => {
+    const scrollTopButton = document.getElementById("scrollTop");
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    function updateScrollTopButton() {
 
-});
+        if (scrollTopButton) {
 
-
-/* ================= CERTIFICATE MODAL ================= */
-
-const certificateModal =
-    document.getElementById(
-        "certificateModal"
-    );
-
-const certificateTitle =
-    document.getElementById(
-        "certificateTitle"
-    );
-
-
-function showCertificate(title) {
-
-    certificateTitle.textContent =
-        title;
-
-    certificateModal.classList.add(
-        "show"
-    );
-
-}
-
-
-function closeCertificate() {
-
-    certificateModal.classList.remove(
-        "show"
-    );
-
-}
-
-
-/* Close modal when clicking outside */
-
-certificateModal.addEventListener(
-    "click",
-    (event) => {
-
-        if (
-            event.target ===
-            certificateModal
-        ) {
-
-            closeCertificate();
+            scrollTopButton.classList.toggle(
+                "show",
+                window.scrollY > 500
+            );
 
         }
 
     }
-);
+
+    updateScrollTopButton();
+
+    window.addEventListener("scroll", updateScrollTopButton, {
+        passive: true
+    });
+
+    if (scrollTopButton) {
+
+        scrollTopButton.addEventListener("click", () => {
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        });
+
+    }
 
 
-/* Close modal with Escape */
+    /* ================= CERTIFICATE MODAL ================= */
 
-document.addEventListener(
-    "keydown",
-    (event) => {
+    const certificateModal =
+        document.getElementById("certificateModal");
+
+    const certificateTitle =
+        document.getElementById("certificateTitle");
+
+
+    // Keep these functions global so HTML buttons can call them.
+    // Example: onclick="showCertificate('Python Certificate')"
+
+    window.showCertificate = function (title) {
+
+        if (!certificateModal || !certificateTitle) {
+            return;
+        }
+
+        certificateTitle.textContent = title || "Certificate";
+
+        certificateModal.classList.add("show");
+
+        certificateModal.setAttribute("aria-hidden", "false");
+
+        document.body.classList.add("modal-open");
+
+        const closeButton = certificateModal.querySelector(
+            "[data-close-certificate], .close-modal, .modal-close, .close"
+        );
+
+        if (closeButton) {
+            closeButton.focus();
+        }
+
+    };
+
+
+    window.closeCertificate = function () {
+
+        if (!certificateModal) {
+            return;
+        }
+
+        certificateModal.classList.remove("show");
+
+        certificateModal.setAttribute("aria-hidden", "true");
+
+        document.body.classList.remove("modal-open");
+
+    };
+
+
+    // Close modal when clicking outside the content.
+
+    if (certificateModal) {
+
+        certificateModal.addEventListener("click", event => {
+
+            if (event.target === certificateModal) {
+
+                window.closeCertificate();
+
+            }
+
+        });
+
+    }
+
+
+    // Close modal with Escape key.
+
+    document.addEventListener("keydown", event => {
 
         if (event.key === "Escape") {
 
-            closeCertificate();
+            window.closeCertificate();
 
         }
 
-    }
-);
+    });
 
 
-/* ================= HERO MOUSE EFFECT ================= */
+    /* ================= HERO MOUSE EFFECT ================= */
 
-const heroVisual =
-    document.querySelector(".hero-visual");
+    const heroVisual = document.querySelector(".hero-visual");
 
-if (heroVisual) {
+    if (
+        heroVisual &&
+        window.matchMedia("(pointer: fine)").matches
+    ) {
 
-    heroVisual.addEventListener(
-        "mousemove",
-        (event) => {
+        heroVisual.addEventListener("mousemove", event => {
 
-            const rect =
-                heroVisual.getBoundingClientRect();
+            const rect = heroVisual.getBoundingClientRect();
 
-            const x =
-                (event.clientX - rect.left) /
-                rect.width;
+            if (!rect.width || !rect.height) {
+                return;
+            }
 
-            const y =
-                (event.clientY - rect.top) /
-                rect.height;
+            const x = (event.clientX - rect.left) / rect.width;
 
-            const moveX =
-                (x - 0.5) * 15;
+            const y = (event.clientY - rect.top) / rect.height;
 
-            const moveY =
-                (y - 0.5) * 15;
+            const moveX = (x - 0.5) * 15;
+
+            const moveY = (y - 0.5) * 15;
 
             heroVisual.style.transform =
                 `translate(${moveX}px, ${moveY}px)`;
 
-        }
+        });
+
+
+        heroVisual.addEventListener("mouseleave", () => {
+
+            heroVisual.style.transform = "translate(0, 0)";
+
+        });
+
+    }
+
+
+    /* ================= CONSOLE MESSAGE ================= */
+
+    console.log(
+        "%cWelcome to Surya Narayan Sahu's Portfolio 🚀",
+        "color:#8f63ff;font-size:16px;font-weight:bold;"
     );
 
+    console.log("AI/ML Developer • CSE Student");
 
-    heroVisual.addEventListener(
-        "mouseleave",
-        () => {
-
-            heroVisual.style.transform =
-                "translate(0, 0)";
-
-        }
-    );
-
-}
-
-
-/* ================= CONSOLE ================= */
-
-console.log(
-    "%cWelcome to Surya Narayan Sahu's Portfolio 🚀",
-    "color:#8f63ff;font-size:16px;font-weight:bold;"
-);
-
-console.log(
-    "AI/ML Developer • CSE Student"
-);
+});
